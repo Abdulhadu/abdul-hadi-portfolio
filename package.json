@@ -12,7 +12,7 @@
     "build:ci": "npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
-    "next": "15.3.3",
+    "next": "15.3.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@hookform/resolvers": "^3.10.0",
@@ -35,6 +35,6 @@
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "15.3.3"
+    "eslint-config-next": "15.3.9"
   }
 }
