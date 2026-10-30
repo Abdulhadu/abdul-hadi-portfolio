@@ -1,10 +1,11 @@
 "use client";
 import { useRef } from "react";
+import type { ElementType } from "react";
 import { motion, useInView } from "framer-motion";
 import { Server, Monitor, Brain, Database, Cloud, Zap, Wrench, Layers } from "lucide-react";
 import { skills } from "@/lib/data";
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, ElementType> = {
   Server, Monitor, Brain, Database, Cloud, Zap, Wrench, Layers,
 };
 
