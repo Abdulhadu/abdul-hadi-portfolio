@@ -57,10 +57,7 @@ function FloatingParticle({ delay, x, y }: { delay: number; x: string; y: string
 }
 
 // ── SKILL BADGE ───────────────────────────────────────────────────────────────
-function SkillBadge({
-  label, colorClass, borderClass, bgClass, glowClass,
-  animY, delay, style,
-}: {
+interface BadgeProps {
   label: string;
   colorClass: string;
   borderClass: string;
@@ -68,21 +65,173 @@ function SkillBadge({
   glowClass: string;
   animY: number[];
   delay: number;
-  style: React.CSSProperties;
-}) {
+  // Desktop absolute position
+  desktopStyle: React.CSSProperties;
+}
+
+// On mobile we render them in a row below the portrait instead of absolutely positioned
+function SkillBadgeAbsolute({ label, colorClass, borderClass, bgClass, glowClass, animY, delay, desktopStyle }: BadgeProps) {
   return (
     <motion.div
-      className={`absolute flex items-center gap-2 px-4 py-2 rounded-xl
+      className={`absolute hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl
                   border-2 ${borderClass} ${bgClass} backdrop-blur-md
                   ${colorClass} font-bold text-sm tracking-wide
                   shadow-lg ${glowClass} whitespace-nowrap z-20`}
-      style={style}
+      style={desktopStyle}
       animate={{ y: animY }}
       transition={{ duration: 3.5 + delay * 0.5, repeat: Infinity, ease: "easeInOut", delay }}
     >
       <span className={`w-2.5 h-2.5 rounded-full ${colorClass.replace("text-", "bg-")}/80`} />
       {label}
     </motion.div>
+  );
+}
+
+function SkillBadgeInline({ label, colorClass, borderClass, bgClass, glowClass, animY, delay }: Omit<BadgeProps, "desktopStyle">) {
+  return (
+    <motion.div
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                  border-2 ${borderClass} ${bgClass} backdrop-blur-md
+                  ${colorClass} font-bold text-xs tracking-wide
+                  shadow-lg ${glowClass} whitespace-nowrap`}
+      animate={{ y: animY }}
+      transition={{ duration: 3.5 + delay * 0.5, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <span className={`w-2 h-2 rounded-full ${colorClass.replace("text-", "bg-")}/80`} />
+      {label}
+    </motion.div>
+  );
+}
+
+// ── PORTRAIT SECTION ──────────────────────────────────────────────────────────
+function Portrait({ imgSrc, onError }: { imgSrc: string; onError: () => void }) {
+  const badges = [
+    {
+      label: "Python Expert",
+      colorClass: "text-blue-300",
+      borderClass: "border-blue-400/70",
+      bgClass: "bg-blue-950/90",
+      glowClass: "shadow-blue-500/40",
+      animY: [0, -8, 0] as number[],
+      delay: 0,
+      desktopStyle: { top: "0.5rem", right: "-1rem" } as React.CSSProperties,
+    },
+    {
+      label: "AI / ML",
+      colorClass: "text-cyan-300",
+      borderClass: "border-cyan-400/70",
+      bgClass: "bg-cyan-950/90",
+      glowClass: "shadow-cyan-500/40",
+      animY: [0, -5, 5, 0] as number[],
+      delay: 0.8,
+      desktopStyle: { top: "50%", right: "-2rem", transform: "translateY(-50%)" } as React.CSSProperties,
+    },
+    {
+      label: "Full Stack",
+      colorClass: "text-violet-300",
+      borderClass: "border-violet-400/70",
+      bgClass: "bg-violet-950/90",
+      glowClass: "shadow-violet-500/40",
+      animY: [0, 8, 0] as number[],
+      delay: 0.4,
+      desktopStyle: { bottom: "0.5rem", left: "-1rem" } as React.CSSProperties,
+    },
+  ];
+
+  return (
+    <div className="flex flex-col items-center gap-4 sm:gap-0">
+      {/*
+        Portrait wrapper:
+        - Mobile:  260px fixed, centred, no overflow (badges shown below)
+        - sm+:     320px
+        - lg+:     416px (26rem) with room for absolute badges
+      */}
+      <div
+        className="relative flex items-center justify-center"
+        style={{ width: "min(260px, 90vw)", height: "min(260px, 90vw)" }}
+      >
+        {/* sm+ make it bigger */}
+        <style>{`
+          @media (min-width: 640px) {
+            .portrait-wrapper { width: 320px !important; height: 320px !important; }
+          }
+          @media (min-width: 1024px) {
+            .portrait-wrapper { width: 416px !important; height: 416px !important; }
+          }
+        `}</style>
+        <div
+          className="portrait-wrapper relative flex items-center justify-center w-full h-full"
+        >
+          {/* Glow halo */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(96,165,250,0.18) 0%, rgba(139,92,246,0.10) 50%, transparent 70%)" }}
+          />
+
+          {/* Spinning ring 1 — 92% of wrapper */}
+          <motion.div
+            className="absolute rounded-full border border-accent-blue/30"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            style={{ width: "92%", height: "92%" }}
+          >
+            <div className="absolute -top-1.5 left-1/2 w-3 h-3 rounded-full bg-accent-blue -translate-x-1/2 shadow-lg shadow-accent-blue/60" />
+            <div className="absolute -bottom-1.5 left-1/2 w-2 h-2 rounded-full bg-accent-violet -translate-x-1/2" />
+          </motion.div>
+
+          {/* Spinning ring 2 — 80% */}
+          <motion.div
+            className="absolute rounded-full border border-accent-violet/25"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+            style={{ width: "80%", height: "80%" }}
+          >
+            <div className="absolute top-1/2 -right-1.5 w-2.5 h-2.5 rounded-full bg-accent-cyan -translate-y-1/2 shadow-lg shadow-accent-cyan/60" />
+          </motion.div>
+
+          {/* Spinning ring 3 — 69% */}
+          <motion.div
+            className="absolute rounded-full border border-accent-cyan/15"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
+            style={{ width: "69%", height: "69%" }}
+          />
+
+          {/* Profile image — 65% of wrapper */}
+          <div
+            className="relative z-10 rounded-full overflow-hidden"
+            style={{
+              width: "65%",
+              height: "65%",
+              boxShadow: "0 0 0 3px rgba(96,165,250,0.6), 0 0 50px rgba(96,165,250,0.25), 0 0 100px rgba(139,92,246,0.18)",
+            }}
+          >
+            <Image
+              src={imgSrc}
+              alt={`${personalInfo.name} — portrait`}
+              fill
+              className="object-cover object-top"
+              sizes="(max-width: 640px) 170px, (max-width: 1024px) 208px, 272px"
+              priority
+              onError={onError}
+            />
+            <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-bg-primary/70 to-transparent" />
+          </div>
+
+          {/* Absolute badges — hidden on mobile (<sm), shown sm+ */}
+          {badges.map((b) => (
+            <SkillBadgeAbsolute key={b.label} {...b} />
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile-only badge row — shown below portrait on xs screens */}
+      <div className="flex sm:hidden items-center justify-center gap-2 flex-wrap px-2">
+        {badges.map((b) => (
+          <SkillBadgeInline key={b.label} {...b} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -109,12 +258,22 @@ export default function Hero() {
         <FloatingParticle key={p.id} delay={p.delay} x={p.x} y={p.y} />
       ))}
 
-      <div className="container mx-auto px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+
+          {/* RIGHT (portrait) — comes first in DOM so it shows at top on mobile */}
+          <motion.div
+            className="order-1 lg:order-2 flex justify-center items-center"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+          >
+            <Portrait imgSrc={imgSrc} onError={() => setImgSrc(fallbackSrc)} />
+          </motion.div>
 
           {/* LEFT — TEXT */}
           <motion.div
-            className="order-2 lg:order-1 space-y-6"
+            className="order-2 lg:order-1 space-y-5 sm:space-y-6 text-center lg:text-left"
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -136,9 +295,9 @@ export default function Hero() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <span className="block text-5xl sm:text-6xl xl:text-7xl text-text-primary">Abdul</span>
+              <span className="block text-4xl sm:text-5xl md:text-6xl xl:text-7xl text-text-primary">Abdul</span>
               <span
-                className="block text-5xl sm:text-6xl xl:text-7xl"
+                className="block text-4xl sm:text-5xl md:text-6xl xl:text-7xl"
                 style={{
                   background: "linear-gradient(135deg, #60A5FA 0%, #8B5CF6 50%, #22D3EE 100%)",
                   WebkitBackgroundClip: "text",
@@ -151,7 +310,7 @@ export default function Hero() {
             </motion.h1>
 
             <motion.div
-              className="text-lg sm:text-xl font-mono h-7"
+              className="text-base sm:text-lg md:text-xl font-mono h-7"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -160,7 +319,7 @@ export default function Hero() {
             </motion.div>
 
             <motion.p
-              className="text-text-muted text-base sm:text-lg leading-relaxed max-w-lg"
+              className="text-text-muted text-sm sm:text-base leading-relaxed max-w-lg mx-auto lg:mx-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -169,23 +328,23 @@ export default function Hero() {
             </motion.p>
 
             <motion.div
-              className="flex flex-wrap gap-4"
+              className="flex flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
             >
               <a
                 href="#contact"
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm
                            bg-accent-blue text-bg-primary hover:bg-accent-blue/90
                            transition-all duration-200 shadow-lg shadow-accent-blue/25"
               >
-                <Mail size={16} />
+                <Mail size={15} />
                 Hire Me
               </a>
               <a
                 href="#projects"
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm
                            border border-border bg-card/60 backdrop-blur-sm text-text-primary
                            hover:border-accent-blue/50 hover:bg-card/80 transition-all duration-200"
               >
@@ -194,17 +353,17 @@ export default function Hero() {
               <a
                 href={personalInfo.resumeUrl}
                 download
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm
                            border border-border bg-card/60 backdrop-blur-sm text-text-muted
                            hover:border-accent-violet/50 hover:text-text-primary transition-all duration-200"
               >
-                <Download size={16} />
+                <Download size={15} />
                 Resume
               </a>
             </motion.div>
 
             <motion.div
-              className="flex items-center gap-4 pt-2"
+              className="flex items-center gap-3 sm:gap-4 pt-1 justify-center lg:justify-start"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
@@ -229,118 +388,11 @@ export default function Hero() {
               ))}
             </motion.div>
           </motion.div>
-
-          {/* RIGHT — PORTRAIT (bigger + better badges) */}
-          <motion.div
-            className="order-1 lg:order-2 flex justify-center items-center"
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-          >
-            {/* Outer container — give enough room for badges */}
-            <div className="relative flex items-center justify-center" style={{ width: "26rem", height: "26rem" }}>
-
-              {/* Glow halo */}
-              <div className="absolute inset-0 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, rgba(96,165,250,0.18) 0%, rgba(139,92,246,0.10) 50%, transparent 70%)",
-                }} />
-
-              {/* Spinning ring 1 */}
-              <motion.div
-                className="absolute rounded-full border border-accent-blue/30"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-                style={{ width: "24rem", height: "24rem" }}
-              >
-                <div className="absolute -top-1.5 left-1/2 w-3 h-3 rounded-full bg-accent-blue -translate-x-1/2 shadow-lg shadow-accent-blue/60" />
-                <div className="absolute -bottom-1.5 left-1/2 w-2 h-2 rounded-full bg-accent-violet -translate-x-1/2" />
-              </motion.div>
-
-              {/* Spinning ring 2 */}
-              <motion.div
-                className="absolute rounded-full border border-accent-violet/25"
-                animate={{ rotate: -360 }}
-                transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-                style={{ width: "21rem", height: "21rem" }}
-              >
-                <div className="absolute top-1/2 -right-1.5 w-2.5 h-2.5 rounded-full bg-accent-cyan -translate-y-1/2 shadow-lg shadow-accent-cyan/60" />
-              </motion.div>
-
-              {/* Spinning ring 3 */}
-              <motion.div
-                className="absolute rounded-full border border-accent-cyan/15"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
-                style={{ width: "18rem", height: "18rem" }}
-              />
-
-              {/* ── PROFILE IMAGE — bigger: 18rem → 18rem circle ── */}
-              <div
-                className="relative z-10 rounded-full overflow-hidden"
-                style={{
-                  width: "17rem",
-                  height: "17rem",
-                  boxShadow:
-                    "0 0 0 3px rgba(96,165,250,0.6), 0 0 50px rgba(96,165,250,0.25), 0 0 100px rgba(139,92,246,0.18)",
-                }}
-              >
-                <Image
-                  src={imgSrc}
-                  alt={`${personalInfo.name} — portrait`}
-                  fill
-                  className="object-cover object-top"
-                  sizes="272px"
-                  priority
-                  onError={() => setImgSrc(fallbackSrc)}
-                />
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-bg-primary/70 to-transparent" />
-              </div>
-
-              {/* ── SKILL BADGES — prominent, solid background ── */}
-
-              {/* Python Expert — top right */}
-              <SkillBadge
-                label="Python Expert"
-                colorClass="text-blue-300"
-                borderClass="border-blue-400/70"
-                bgClass="bg-blue-950/90"
-                glowClass="shadow-blue-500/40"
-                animY={[0, -8, 0]}
-                delay={0}
-                style={{ top: "0.5rem", right: "-1rem" }}
-              />
-
-              {/* AI / ML — middle right */}
-              <SkillBadge
-                label="AI / ML"
-                colorClass="text-cyan-300"
-                borderClass="border-cyan-400/70"
-                bgClass="bg-cyan-950/90"
-                glowClass="shadow-cyan-500/40"
-                animY={[0, -5, 5, 0]}
-                delay={0.8}
-                style={{ top: "50%", right: "-2rem", transform: "translateY(-50%)" }}
-              />
-
-              {/* Full Stack — bottom left */}
-              <SkillBadge
-                label="Full Stack"
-                colorClass="text-violet-300"
-                borderClass="border-violet-400/70"
-                bgClass="bg-violet-950/90"
-                glowClass="shadow-violet-500/40"
-                animY={[0, 8, 0]}
-                delay={0.4}
-                style={{ bottom: "0.5rem", left: "-1rem" }}
-              />
-            </div>
-          </motion.div>
         </div>
 
         {/* STATS */}
         <motion.div
-          className="mt-16 lg:mt-20 grid grid-cols-2 sm:grid-cols-4 gap-4"
+          className="mt-10 sm:mt-16 lg:mt-20 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.6 }}
@@ -348,10 +400,10 @@ export default function Hero() {
           {stats.map((s) => (
             <div
               key={s.label}
-              className="p-4 rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm text-center
+              className="p-3 sm:p-4 rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm text-center
                          hover:border-accent-blue/30 transition-colors duration-200"
             >
-              <div className="text-2xl sm:text-3xl font-bold text-accent-blue">{s.value}</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-blue">{s.value}</div>
               <div className="text-xs sm:text-sm text-text-muted mt-1">{s.label}</div>
             </div>
           ))}
@@ -360,7 +412,7 @@ export default function Hero() {
 
       <motion.a
         href="#about"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted/50 hover:text-accent-blue transition-colors"
+        className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 text-text-muted/50 hover:text-accent-blue transition-colors"
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
