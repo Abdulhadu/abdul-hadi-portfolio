@@ -146,22 +146,8 @@ function Portrait({ imgSrc, onError }: { imgSrc: string; onError: () => void }) 
         - sm+:     320px
         - lg+:     416px (26rem) with room for absolute badges
       */}
-      <div
-        className="relative flex items-center justify-center"
-        style={{ width: "min(260px, 90vw)", height: "min(260px, 90vw)" }}
-      >
-        {/* sm+ make it bigger */}
-        <style>{`
-          @media (min-width: 640px) {
-            .portrait-wrapper { width: 320px !important; height: 320px !important; }
-          }
-          @media (min-width: 1024px) {
-            .portrait-wrapper { width: 416px !important; height: 416px !important; }
-          }
-        `}</style>
-        <div
-          className="portrait-wrapper relative flex items-center justify-center w-full h-full"
-        >
+      <div className="relative flex items-center justify-center w-[min(260px,90vw)] h-[min(260px,90vw)] sm:w-80 sm:h-80 lg:w-[26rem] lg:h-[26rem]">
+        <div className="relative flex items-center justify-center w-full h-full">
           {/* Glow halo */}
           <div
             className="absolute inset-0 rounded-full"
@@ -197,12 +183,13 @@ function Portrait({ imgSrc, onError }: { imgSrc: string; onError: () => void }) 
             style={{ width: "69%", height: "69%" }}
           />
 
-          {/* Profile image — 65% of wrapper */}
+          {/* Profile image — 65% × 65%, borderRadius:50% forced inline (never becomes rect) */}
           <div
-            className="relative z-10 rounded-full overflow-hidden"
+            className="relative z-10 overflow-hidden"
             style={{
               width: "65%",
               height: "65%",
+              borderRadius: "50%",
               boxShadow: "0 0 0 3px rgba(96,165,250,0.6), 0 0 50px rgba(96,165,250,0.25), 0 0 100px rgba(139,92,246,0.18)",
             }}
           >
@@ -218,12 +205,12 @@ function Portrait({ imgSrc, onError }: { imgSrc: string; onError: () => void }) 
             <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-bg-primary/70 to-transparent" />
           </div>
 
-          {/* Absolute badges — hidden on mobile (<sm), shown sm+ */}
+          {/* Absolute badges — sm+ only, sit outside rings */}
           {badges.map((b) => (
             <SkillBadgeAbsolute key={b.label} {...b} />
           ))}
-        </div>
-      </div>
+        </div>{/* end inner flex */}
+      </div>{/* end outer square */}
 
       {/* Mobile-only badge row — shown below portrait on xs screens */}
       <div className="flex sm:hidden items-center justify-center gap-2 flex-wrap px-2">
