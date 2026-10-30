@@ -1,0 +1,40 @@
+{
+  "name": "abdul-hadi-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "build:ci": "npm run type-check && npm run lint && npm run build"
+  },
+  "dependencies": {
+    "next": "15.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@hookform/resolvers": "^3.10.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "@react-three/fiber": "^9.1.2",
+    "@react-three/drei": "^10.3.2",
+    "three": "^0.176.0",
+    "@types/three": "^0.176.0",
+    "framer-motion": "^11.18.2",
+    "lucide-react": "^0.487.0",
+    "react-hook-form": "^7.55.0",
+    "resend": "^4.5.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.3"
+  }
+}
