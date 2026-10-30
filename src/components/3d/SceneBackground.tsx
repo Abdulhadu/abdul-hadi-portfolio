@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useMemo } from "react";
+import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useScroll, Section } from "@/lib/scroll-context";
 import * as THREE from "three";
@@ -296,26 +296,64 @@ function CircuitBoard({ scroll }: { scroll: ReturnType<typeof useScroll> }) {
   );
 }
 
-// ── CAMERA CONTROLLER ─────────────────────────────────────────────────────────
+// ── MOUSE STORE (outside React — shared between components) ──────────────────
+const mouse = { x: 0, y: 0 };
+if (typeof window !== "undefined") {
+  window.addEventListener("mousemove", (e) => {
+    mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;   // -1 → 1
+    mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2; // -1 → 1
+  }, { passive: true });
+}
+
+// ── CAMERA CONTROLLER (section targets + mouse offset) ───────────────────────
 function CameraController({ scroll }: { scroll: ReturnType<typeof useScroll> }) {
   const { camera } = useThree();
-  const targetPos = useRef(new THREE.Vector3(0, 0, 8));
+  const basePos = useRef(new THREE.Vector3(0, 0, 8));
   const targetFov = useRef(60);
+  const currentMx = useRef(0);
+  const currentMy = useRef(0);
 
   useFrame(() => {
     const cam = CAM[scroll.activeSection];
-    targetPos.current.set(...cam.pos);
-    targetFov.current = cam.fov;
+    basePos.current.lerp(new THREE.Vector3(...cam.pos), 0.025);
+    targetFov.current = lerp(targetFov.current, cam.fov, 0.025);
 
-    camera.position.lerp(targetPos.current, 0.025);
-    (camera as THREE.PerspectiveCamera).fov = lerp(
-      (camera as THREE.PerspectiveCamera).fov, targetFov.current, 0.025
-    );
+    // Smooth mouse tracking
+    currentMx.current = lerp(currentMx.current, mouse.x, 0.06);
+    currentMy.current = lerp(currentMy.current, mouse.y, 0.06);
+
+    // Apply mouse offset on top of section target (dramatic: ±1.8 units)
+    const parallaxStrength = scroll.activeSection === "hero" ? 1.8 : 1.2;
+    camera.position.x = lerp(camera.position.x, basePos.current.x + currentMx.current * parallaxStrength, 0.08);
+    camera.position.y = lerp(camera.position.y, basePos.current.y + currentMy.current * parallaxStrength, 0.08);
+    camera.position.z = lerp(camera.position.z, basePos.current.z, 0.025);
+
+    (camera as THREE.PerspectiveCamera).fov = targetFov.current;
     (camera as THREE.PerspectiveCamera).updateProjectionMatrix();
-    camera.lookAt(0, 0, 0);
+
+    // Look slightly toward mouse for extra depth
+    camera.lookAt(currentMx.current * -0.5, currentMy.current * -0.5, 0);
   });
 
   return null;
+}
+
+// ── SCENE GROUP (rotates with mouse for parallax depth) ───────────────────────
+function MouseParallaxGroup({ children }: { children: React.ReactNode }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const rotX = useRef(0);
+  const rotY = useRef(0);
+
+  useFrame(() => {
+    if (!groupRef.current) return;
+    // Gentle scene tilt — adds a second layer of parallax on top of camera move
+    rotY.current = lerp(rotY.current, mouse.x * 0.12, 0.04);
+    rotX.current = lerp(rotX.current, mouse.y * -0.08, 0.04);
+    groupRef.current.rotation.y = rotY.current;
+    groupRef.current.rotation.x = rotX.current;
+  });
+
+  return <group ref={groupRef}>{children}</group>;
 }
 
 // ── AMBIENT LIGHT SYSTEM ──────────────────────────────────────────────────────
@@ -358,16 +396,18 @@ function Scene({ scroll }: { scroll: ReturnType<typeof useScroll> }) {
     <>
       <CameraController scroll={scroll} />
       <DynamicLighting scroll={scroll} />
-      <WireframeSphere scroll={scroll} />
-      <OrbitalRing radius={3.0} tiltX={Math.PI/3}  tiltZ={0.2} speed={0.15} color={C.blue}   section="hero"       scroll={scroll} />
-      <OrbitalRing radius={3.6} tiltX={Math.PI/2}  tiltZ={0.5} speed={-0.1} color={C.violet} section="about"      scroll={scroll} />
-      <OrbitalRing radius={2.6} tiltX={Math.PI/4}  tiltZ={0.8} speed={0.2}  color={C.cyan}   section="skills"     scroll={scroll} />
-      <OrbitalRing radius={4.0} tiltX={Math.PI/6}  tiltZ={-0.3}speed={-0.08}color={C.blue}   section="experience" scroll={scroll} />
-      <NetworkGraph scroll={scroll} />
-      <Particles scroll={scroll} />
-      <ServerStack scroll={scroll} />
-      <FloatingGems scroll={scroll} />
-      <CircuitBoard scroll={scroll} />
+      <MouseParallaxGroup>
+        <WireframeSphere scroll={scroll} />
+        <OrbitalRing radius={3.0} tiltX={Math.PI/3}  tiltZ={0.2} speed={0.15} color={C.blue}   section="hero"       scroll={scroll} />
+        <OrbitalRing radius={3.6} tiltX={Math.PI/2}  tiltZ={0.5} speed={-0.1} color={C.violet} section="about"      scroll={scroll} />
+        <OrbitalRing radius={2.6} tiltX={Math.PI/4}  tiltZ={0.8} speed={0.2}  color={C.cyan}   section="skills"     scroll={scroll} />
+        <OrbitalRing radius={4.0} tiltX={Math.PI/6}  tiltZ={-0.3}speed={-0.08}color={C.blue}   section="experience" scroll={scroll} />
+        <NetworkGraph scroll={scroll} />
+        <Particles scroll={scroll} />
+        <ServerStack scroll={scroll} />
+        <FloatingGems scroll={scroll} />
+        <CircuitBoard scroll={scroll} />
+      </MouseParallaxGroup>
     </>
   );
 }

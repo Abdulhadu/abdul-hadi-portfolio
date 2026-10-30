@@ -56,9 +56,38 @@ function FloatingParticle({ delay, x, y }: { delay: number; x: string; y: string
   );
 }
 
+// ── SKILL BADGE ───────────────────────────────────────────────────────────────
+function SkillBadge({
+  label, colorClass, borderClass, bgClass, glowClass,
+  animY, delay, style,
+}: {
+  label: string;
+  colorClass: string;
+  borderClass: string;
+  bgClass: string;
+  glowClass: string;
+  animY: number[];
+  delay: number;
+  style: React.CSSProperties;
+}) {
+  return (
+    <motion.div
+      className={`absolute flex items-center gap-2 px-4 py-2 rounded-xl
+                  border-2 ${borderClass} ${bgClass} backdrop-blur-md
+                  ${colorClass} font-bold text-sm tracking-wide
+                  shadow-lg ${glowClass} whitespace-nowrap z-20`}
+      style={style}
+      animate={{ y: animY }}
+      transition={{ duration: 3.5 + delay * 0.5, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <span className={`w-2.5 h-2.5 rounded-full ${colorClass.replace("text-", "bg-")}/80`} />
+      {label}
+    </motion.div>
+  );
+}
+
 // ── HERO ──────────────────────────────────────────────────────────────────────
 export default function Hero() {
-  // Determine which portrait to use (new dark portrait preferred, fallback to profile.jpg)
   const portraitSrc = "/images/abdul-hadi-hero-portrait-dark.jpg";
   const fallbackSrc = "/images/profile.jpg";
   const [imgSrc, setImgSrc] = useState(portraitSrc);
@@ -75,15 +104,11 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
     >
-      {/* Subtle radial gradient overlay (keeps 3D visible beneath) */}
       <div className="absolute inset-0 bg-radial-gradient pointer-events-none" />
-
-      {/* Floating DOM particles */}
       {particles.map((p) => (
         <FloatingParticle key={p.id} delay={p.delay} x={p.x} y={p.y} />
       ))}
 
-      {/* ── GRID ──────────────────────────────────────────────────────────── */}
       <div className="container mx-auto px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
@@ -94,7 +119,6 @@ export default function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            {/* Badge */}
             <motion.div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
                          border border-accent-blue/30 bg-accent-blue/8 text-accent-blue text-xs font-mono"
@@ -106,16 +130,13 @@ export default function Hero() {
               Available for opportunities
             </motion.div>
 
-            {/* Name */}
             <motion.h1
               className="font-bold leading-none tracking-tight"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <span className="block text-5xl sm:text-6xl xl:text-7xl text-text-primary">
-                Abdul
-              </span>
+              <span className="block text-5xl sm:text-6xl xl:text-7xl text-text-primary">Abdul</span>
               <span
                 className="block text-5xl sm:text-6xl xl:text-7xl"
                 style={{
@@ -129,7 +150,6 @@ export default function Hero() {
               </span>
             </motion.h1>
 
-            {/* Typewriter role */}
             <motion.div
               className="text-lg sm:text-xl font-mono h-7"
               initial={{ opacity: 0 }}
@@ -139,7 +159,6 @@ export default function Hero() {
               <Typewriter />
             </motion.div>
 
-            {/* Bio */}
             <motion.p
               className="text-text-muted text-base sm:text-lg leading-relaxed max-w-lg"
               initial={{ opacity: 0 }}
@@ -149,7 +168,6 @@ export default function Hero() {
               {personalInfo.bio}
             </motion.p>
 
-            {/* CTA buttons */}
             <motion.div
               className="flex flex-wrap gap-4"
               initial={{ opacity: 0, y: 10 }}
@@ -185,7 +203,6 @@ export default function Hero() {
               </a>
             </motion.div>
 
-            {/* Social links */}
             <motion.div
               className="flex items-center gap-4 pt-2"
               initial={{ opacity: 0 }}
@@ -213,57 +230,59 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* RIGHT — PORTRAIT */}
+          {/* RIGHT — PORTRAIT (bigger + better badges) */}
           <motion.div
             className="order-1 lg:order-2 flex justify-center items-center"
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
           >
-            <div className="relative flex items-center justify-center">
-              {/* Outer glow halo */}
-              <div className="absolute w-80 h-80 sm:w-96 sm:h-96 rounded-full"
+            {/* Outer container — give enough room for badges */}
+            <div className="relative flex items-center justify-center" style={{ width: "26rem", height: "26rem" }}>
+
+              {/* Glow halo */}
+              <div className="absolute inset-0 rounded-full"
                 style={{
-                  background: "radial-gradient(circle, rgba(96,165,250,0.12) 0%, rgba(139,92,246,0.08) 50%, transparent 70%)",
+                  background: "radial-gradient(circle, rgba(96,165,250,0.18) 0%, rgba(139,92,246,0.10) 50%, transparent 70%)",
                 }} />
 
               {/* Spinning ring 1 */}
               <motion.div
-                className="absolute w-72 h-72 sm:w-88 sm:h-88 rounded-full border border-accent-blue/25"
+                className="absolute rounded-full border border-accent-blue/30"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                style={{ width: "22rem", height: "22rem" }}
+                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                style={{ width: "24rem", height: "24rem" }}
               >
-                <div className="absolute -top-1 left-1/2 w-2 h-2 rounded-full bg-accent-blue/70 -translate-x-1/2" />
-                <div className="absolute -bottom-1 left-1/2 w-1.5 h-1.5 rounded-full bg-accent-violet/60 -translate-x-1/2" />
+                <div className="absolute -top-1.5 left-1/2 w-3 h-3 rounded-full bg-accent-blue -translate-x-1/2 shadow-lg shadow-accent-blue/60" />
+                <div className="absolute -bottom-1.5 left-1/2 w-2 h-2 rounded-full bg-accent-violet -translate-x-1/2" />
               </motion.div>
 
               {/* Spinning ring 2 */}
               <motion.div
-                className="absolute rounded-full border border-accent-violet/20"
+                className="absolute rounded-full border border-accent-violet/25"
                 animate={{ rotate: -360 }}
-                transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-                style={{ width: "19rem", height: "19rem" }}
+                transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+                style={{ width: "21rem", height: "21rem" }}
               >
-                <div className="absolute top-1/2 -right-1 w-1.5 h-1.5 rounded-full bg-accent-cyan/70 -translate-y-1/2" />
+                <div className="absolute top-1/2 -right-1.5 w-2.5 h-2.5 rounded-full bg-accent-cyan -translate-y-1/2 shadow-lg shadow-accent-cyan/60" />
               </motion.div>
 
               {/* Spinning ring 3 */}
               <motion.div
                 className="absolute rounded-full border border-accent-cyan/15"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-                style={{ width: "16.5rem", height: "16.5rem" }}
+                transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
+                style={{ width: "18rem", height: "18rem" }}
               />
 
-              {/* Photo circle */}
+              {/* ── PROFILE IMAGE — bigger: 18rem → 18rem circle ── */}
               <div
                 className="relative z-10 rounded-full overflow-hidden"
                 style={{
-                  width: "14rem",
-                  height: "14rem",
+                  width: "17rem",
+                  height: "17rem",
                   boxShadow:
-                    "0 0 0 2px rgba(96,165,250,0.5), 0 0 40px rgba(96,165,250,0.2), 0 0 80px rgba(139,92,246,0.15)",
+                    "0 0 0 3px rgba(96,165,250,0.6), 0 0 50px rgba(96,165,250,0.25), 0 0 100px rgba(139,92,246,0.18)",
                 }}
               >
                 <Image
@@ -271,44 +290,55 @@ export default function Hero() {
                   alt={`${personalInfo.name} — portrait`}
                   fill
                   className="object-cover object-top"
-                  sizes="224px"
+                  sizes="272px"
                   priority
                   onError={() => setImgSrc(fallbackSrc)}
                 />
-                {/* Subtle dark vignette at bottom to blend with bg */}
-                <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-bg-primary/60 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-bg-primary/70 to-transparent" />
               </div>
 
-              {/* Floating badges */}
-              <motion.div
-                className="absolute -top-4 -right-6 sm:-right-10 px-3 py-1.5 rounded-lg
-                           border border-accent-blue/30 bg-card/80 backdrop-blur-sm text-xs font-mono text-accent-blue"
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                Python Expert
-              </motion.div>
-              <motion.div
-                className="absolute -bottom-4 -left-6 sm:-left-10 px-3 py-1.5 rounded-lg
-                           border border-accent-violet/30 bg-card/80 backdrop-blur-sm text-xs font-mono text-accent-violet"
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              >
-                Full Stack
-              </motion.div>
-              <motion.div
-                className="absolute top-1/2 -right-16 sm:-right-20 px-3 py-1.5 rounded-lg
-                           border border-accent-cyan/30 bg-card/80 backdrop-blur-sm text-xs font-mono text-accent-cyan"
-                animate={{ y: [0, -4, 4, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              >
-                AI / ML
-              </motion.div>
+              {/* ── SKILL BADGES — prominent, solid background ── */}
+
+              {/* Python Expert — top right */}
+              <SkillBadge
+                label="Python Expert"
+                colorClass="text-blue-300"
+                borderClass="border-blue-400/70"
+                bgClass="bg-blue-950/90"
+                glowClass="shadow-blue-500/40"
+                animY={[0, -8, 0]}
+                delay={0}
+                style={{ top: "0.5rem", right: "-1rem" }}
+              />
+
+              {/* AI / ML — middle right */}
+              <SkillBadge
+                label="AI / ML"
+                colorClass="text-cyan-300"
+                borderClass="border-cyan-400/70"
+                bgClass="bg-cyan-950/90"
+                glowClass="shadow-cyan-500/40"
+                animY={[0, -5, 5, 0]}
+                delay={0.8}
+                style={{ top: "50%", right: "-2rem", transform: "translateY(-50%)" }}
+              />
+
+              {/* Full Stack — bottom left */}
+              <SkillBadge
+                label="Full Stack"
+                colorClass="text-violet-300"
+                borderClass="border-violet-400/70"
+                bgClass="bg-violet-950/90"
+                glowClass="shadow-violet-500/40"
+                animY={[0, 8, 0]}
+                delay={0.4}
+                style={{ bottom: "0.5rem", left: "-1rem" }}
+              />
             </div>
           </motion.div>
         </div>
 
-        {/* ── STATS ───────────────────────────────────────────────────────── */}
+        {/* STATS */}
         <motion.div
           className="mt-16 lg:mt-20 grid grid-cols-2 sm:grid-cols-4 gap-4"
           initial={{ opacity: 0, y: 30 }}
@@ -328,7 +358,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
       <motion.a
         href="#about"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted/50 hover:text-accent-blue transition-colors"
