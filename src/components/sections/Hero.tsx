@@ -19,7 +19,7 @@ function Typewriter() {
   const [idx, setIdx] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const full = ROLES[idx];
@@ -33,7 +33,7 @@ function Typewriter() {
       setDeleting(false);
       setIdx((i) => (i + 1) % ROLES.length);
     }
-    return () => clearTimeout(timerRef.current);
+    return () => { if (timerRef.current !== undefined) clearTimeout(timerRef.current); };
   }, [displayed, deleting, idx]);
 
   return (

@@ -9,6 +9,8 @@ export const personalInfo = {
   location: "Pakistan (Remote-First)",
   cvPath: "/documents/abdul-hadi-cv.pdf",
   photo: "/images/profile.jpg",
+  bio: "Python Backend & Full Stack Engineer with 5+ years building production systems — from AI-powered SaaS platforms to high-traffic marketplaces. Specialising in Django, FastAPI, React, Next.js and AI integration.",
+  resumeUrl: "/documents/abdul-hadi-cv.pdf",
 };
 
 export const stats = [
