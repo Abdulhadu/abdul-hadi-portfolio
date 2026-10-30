@@ -92,7 +92,7 @@ function OrbitalRing({ radius, tiltX, tiltZ, speed, color, section, scroll }:
 function NetworkGraph({ scroll }: { scroll: ReturnType<typeof useScroll> }) {
   const groupRef = useRef<THREE.Group>(null);
 
-  const nodes = useMemo(() => Array.from({ length: 18 }, (_, i) => ({
+  const nodes = useMemo(() => Array.from({ length: 18 }, () => ({
     pos: new THREE.Vector3(
       (Math.random() - 0.5) * 9,
       (Math.random() - 0.5) * 7,

@@ -60,9 +60,9 @@ export default function Contact() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
           className="text-center mb-16">
           <span className="text-[#60A5FA] text-sm font-semibold tracking-widest uppercase">Contact</span>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-black text-[#F1F5F9]">Let's Build Something</h2>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-black text-[#F1F5F9]">Let&apos;s Build Something</h2>
           <div className="mt-4 w-16 h-1 bg-gradient-to-r from-[#60A5FA] to-[#8B5CF6] mx-auto rounded-full" />
-          <p className="mt-4 text-[#94A3B8] max-w-xl mx-auto">Have a project in mind? I'd love to hear about it. Send me a message and I'll get back to you within 24 hours.</p>
+          <p className="mt-4 text-[#94A3B8] max-w-xl mx-auto">Have a project in mind? I&apos;d love to hear about it. Send me a message and I&apos;ll get back to you within 24 hours.</p>
         </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-12">
@@ -129,7 +129,7 @@ export default function Contact() {
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-8 rounded-2xl bg-[#111827] border border-[#22D3EE]/30 text-center">
                 <CheckCircle className="w-16 h-16 text-[#22D3EE] mb-4" />
                 <h3 className="text-[#F1F5F9] font-bold text-2xl mb-2">Message Sent!</h3>
-                <p className="text-[#94A3B8] mb-4">I'll get back to you within 24 hours.</p>
+                <p className="text-[#94A3B8] mb-4">I&apos;ll get back to you within 24 hours.</p>
                 {ticketId && (
                   <div className="px-4 py-2 rounded-lg bg-[#0D1220] border border-[#1E293B] text-[#60A5FA] font-mono text-sm">
                     Ticket: {ticketId}

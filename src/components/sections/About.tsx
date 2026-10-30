@@ -29,7 +29,7 @@ export default function About() {
           <motion.div initial={{ opacity: 0, x: -40 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.7, delay: 0.2 }}
             className="space-y-6">
             <p className="text-[#94A3B8] text-lg leading-relaxed">
-              I'm <span className="text-[#F1F5F9] font-semibold">{personalInfo.name}</span>, a Full Stack Python Engineer with 5+ years building production systems that scale. From e-commerce platforms serving thousands of users to AI-powered SaaS tools, I deliver backend systems that are fast, reliable, and maintainable.
+              I&apos;m <span className="text-[#F1F5F9] font-semibold">{personalInfo.name}</span>, a Full Stack Python Engineer with 5+ years building production systems that scale. From e-commerce platforms serving thousands of users to AI-powered SaaS tools, I deliver backend systems that are fast, reliable, and maintainable.
             </p>
             <p className="text-[#94A3B8] text-lg leading-relaxed">
               My work spans <span className="text-[#60A5FA]">Python (Django, Flask)</span>, <span className="text-[#8B5CF6]">React / Next.js</span>, and <span className="text-[#22D3EE]">AI integration</span> — combining deep backend expertise with modern frontend to build complete products that solve real business problems.
