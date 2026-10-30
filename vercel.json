@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build:ci",
+  "buildCommand": "next build",
   "installCommand": "npm ci",
   "outputDirectory": ".next",
   "regions": ["sin1"],
