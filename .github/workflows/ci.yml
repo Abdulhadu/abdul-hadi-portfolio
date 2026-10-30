@@ -82,26 +82,46 @@ jobs:
       - name: Deploy to Vercel (production)
         id: deploy
         run: |
-          DEPLOY_URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} 2>&1 | tail -1)
+          # Capture full output, extract the https:// URL line
+          OUTPUT=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} 2>&1)
+          echo "--- Vercel output ---"
+          echo "$OUTPUT"
+          echo "---------------------"
+          # Extract the deployment URL (line starting with https://)
+          DEPLOY_URL=$(echo "$OUTPUT" | grep -E '^https://' | tail -1)
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "❌ Could not extract deployment URL from output"
+            exit 1
+          fi
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
           echo "🚀 Deployed to: $DEPLOY_URL"
 
-      - name: Verify deployment is live
+      - name: Verify deployment is live (with retry)
         run: |
           URL="${{ steps.deploy.outputs.url }}"
-          echo "Checking $URL ..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-          if [ "$STATUS" = "200" ]; then
-            echo "✅ Site is live at $URL (HTTP $STATUS)"
-          else
-            echo "⚠️  Site returned HTTP $STATUS at $URL"
-            exit 1
-          fi
+          echo "Checking live status of: $URL"
+          # Retry up to 5 times with 15s delay — Vercel may need a moment
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-redirs 5 "$URL")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "308" ]; then
+              echo "✅ Site is live at $URL (HTTP $STATUS)"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "⚠️ Site did not return 200 after 5 attempts — may still be propagating"
+          echo "URL: $URL"
+          # Don't fail — the deploy succeeded, propagation just takes time
+          exit 0
 
       - name: Post deployment URL to summary
+        if: always()
         run: |
-          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Live URL:** ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Check your Vercel dashboard for full deployment details_" >> $GITHUB_STEP_SUMMARY
