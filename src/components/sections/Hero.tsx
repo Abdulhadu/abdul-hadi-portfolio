@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { personalInfo, stats } from "@/lib/data";
 import { Github, Linkedin, Mail, Download, ChevronDown } from "lucide-react";

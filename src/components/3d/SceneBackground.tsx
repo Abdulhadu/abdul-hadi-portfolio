@@ -15,7 +15,7 @@ const C = {
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
-function easeInOut(t: number) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
 
 // ── SECTION CAMERA TARGETS ───────────────────────────────────────────────────
 const CAM: Record<Section, { pos: [number,number,number]; fov: number }> = {
